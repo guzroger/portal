@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: portal-db
+  name: portal-db
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: portal-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/portal-network: "true"
+        io.kompose.service: portal-db
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: oficial_intranet
+            - name: MYSQL_PASSWORD
+              value: Comt3c0
+            - name: MYSQL_ROOT_PASSWORD
+              value: .root.
+            - name: MYSQL_USER
+              value: ecuevas
+          image: mysql
+          name: portal-db
+          ports:
+            - containerPort: 3306
+              hostPort: 3306
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: portal-db-claim0
+            - mountPath: /etc/localtime
+              name: portal-db-claim1
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: portal-db-claim0
+          persistentVolumeClaim:
+            claimName: portal-db-claim0
+        - name: portal-db-claim1
+          persistentVolumeClaim:
+            claimName: portal-db-claim1
+            readOnly: true
+status: {}
