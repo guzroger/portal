@@ -1,0 +1,42 @@
+version: "3.3"
+
+networks:
+  network-id:
+    name: portal-network
+
+services: 
+
+  portal-php:
+    build:
+      context: .
+      args:
+        php_version: ${PHP_VERSION}
+    container_name: portal-php
+    restart: unless-stopped
+    ports:
+      - "${PHP_PORT}:80"
+    volumes:
+      - ./:/var/www/html
+    links:
+      - portal-db
+    networks:
+      - network-id
+    env_file:
+      - .env
+
+  portal-db:
+    container_name: portal-db
+    image: mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/:/docker-entrypoint-initdb.d
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - network-id
