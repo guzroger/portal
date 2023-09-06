@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: portal-php
+  name: portal-php
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: portal-php
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/portal-network: "true"
+        io.kompose.service: portal-php
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: oficial_intranet
+            - name: MYSQL_HOST
+              value: portal-db
+            - name: MYSQL_PASSWORD
+              value: Comt3c0
+            - name: MYSQL_ROOT_PASSWORD
+              value: .root.
+            - name: MYSQL_USER
+              value: ecuevas
+            - name: MYSQL_VERSION
+              value: "5.7"
+            - name: PHP_PORT
+              value: "80"
+            - name: PHP_VERSION
+              value: 7.4-apache
+          image: portal-php
+          name: portal-php
+          ports:
+            - containerPort: 80
+              hostPort: 80
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: portal-php-claim0
+      restartPolicy: Always
+      volumes:
+        - name: portal-php-claim0
+          persistentVolumeClaim:
+            claimName: portal-php-claim0
+status: {}
